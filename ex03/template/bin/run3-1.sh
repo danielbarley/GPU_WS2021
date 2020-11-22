@@ -1,0 +1,13 @@
+srun --gres=gpu:1 ./memCpy -s 1000 > out/resultDataMovement_1000.txt
+srun --gres=gpu:1 ./memCpy -s 5000 > out/resultDataMovement_5000.txt
+srun --gres=gpu:1 ./memCpy -s 10000 > out/resultDataMovement_10000.txt
+srun --gres=gpu:1 ./memCpy -s 50000 > out/resultDataMovement_50000.txt
+srun --gres=gpu:1 ./memCpy -s 100000 > out/resultDataMovement_100000.txt
+srun --gres=gpu:1 ./memCpy -s 500000 > out/resultDataMovement_500000.txt
+srun --gres=gpu:1 ./memCpy -s 1000000 > out/resultDataMovement_1000000.txt
+srun --gres=gpu:1 ./memCpy -s 5000000 > out/resultDataMovement_5000000.txt
+srun --gres=gpu:1 ./memCpy -s 10000000 > out/resultDataMovement_10000000.txt
+srun --gres=gpu:1 ./memCpy -s 50000000 > out/resultDataMovement_50000000.txt
+srun --gres=gpu:1 ./memCpy -s 100000000 > out/resultDataMovement_100000000.txt
+srun --gres=gpu:1 ./memCpy -s 500000000 > out/resultDataMovement_500000000.txt
+srun --gres=gpu:1 ./memCpy -s 1000000000 > out/resultDataMovement_1000000000.txt

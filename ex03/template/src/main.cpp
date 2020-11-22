@@ -58,7 +58,7 @@ main ( int argc, char * argv[] )
               << "*** Starting ..." << std::endl
               << "***" << std::endl;
 
-    ChTimer memCpyH2DTimer, memCpyD2HTimer, memCpyD2DTimer;
+    ChTimer memCpyH2DTimer, memCpyD2HTimer, memCpyD2DTimer, memCpyH2DpinTimer, memCpyD2HpinTimer;
     ChTimer kernelTimer;
 
     //
@@ -132,21 +132,22 @@ main ( int argc, char * argv[] )
     //
     int* h_memoryA = NULL;
     int* h_memoryB = NULL;
+    int* h_memoryApin = NULL;
+    int* h_memoryBpin = NULL;
     bool optUsePinnedMemory = chCommandLineGetBool ( "p", argc, argv );
     if ( !optUsePinnedMemory )
         optUsePinnedMemory = chCommandLineGetBool ( "pinned-memory",argc,argv );
 
-    if ( !optUsePinnedMemory ) { // Pageable
-        std::cout << "***" << " Using pageable memory" << std::endl;
-        h_memoryA = static_cast <int*> ( malloc ( static_cast <size_t> ( optMemorySize ) ) );
-        h_memoryB = static_cast <int*> ( malloc ( static_cast <size_t> ( optMemorySize ) ) );
-    } else { // Pinned
-        std::cout << "***" << " Using pinned memory" << std::endl;
-        // Allocation of pinned host memory
-        cudaMallocHost( (void**) &h_memoryA, static_cast <size_t> ( optMemorySize ));
-        cudaMallocHost( (void**) &h_memoryB, static_cast <size_t> ( optMemorySize ));
-    }
-
+    // Pageable
+    std::cout << "***" << " Using pageable memory" << std::endl;
+    h_memoryA = static_cast <int*> ( malloc ( static_cast <size_t> ( optMemorySize ) ) );
+    h_memoryB = static_cast <int*> ( malloc ( static_cast <size_t> ( optMemorySize ) ) );
+    // Pinned
+    std::cout << "***" << " Using pinned memory" << std::endl;
+    // Allocation of pinned host memory
+    cudaMallocHost( (void**) &h_memoryApin, static_cast <size_t> ( optMemorySize ));
+    cudaMallocHost( (void**) &h_memoryBpin, static_cast <size_t> ( optMemorySize ));
+    
     //
     // Device Memory
     //
@@ -179,6 +180,14 @@ main ( int argc, char * argv[] )
     }
     memCpyH2DTimer.stop ();
 
+    // Host To Device pinned
+    memCpyH2DpinTimer.start ();
+    for ( int i = 0; i < optMemCpyIterations; i ++ ) {
+        // H2D copy
+        cudaMemcpy(d_memoryA, h_memoryApin, optMemorySize, cudaMemcpyHostToDevice);
+    }
+    memCpyH2DpinTimer.stop ();
+
     // Device To Device
     memCpyD2DTimer.start ();
     for ( int i = 0; i < optMemCpyIterations; i ++ ) {
@@ -194,6 +203,14 @@ main ( int argc, char * argv[] )
         cudaMemcpy(h_memoryA, d_memoryA, optMemorySize, cudaMemcpyDeviceToHost);
     }
     memCpyD2HTimer.stop ();
+
+    // Device To Host pinned
+    memCpyD2HpinTimer.start ();
+    for ( int i = 0; i < optMemCpyIterations; i ++ ) {
+        // D2H copy
+        cudaMemcpy(h_memoryApin, d_memoryA, optMemorySize, cudaMemcpyDeviceToHost);
+    }
+    memCpyD2HpinTimer.stop ();
 
     //
     // Check for Errors
@@ -264,17 +281,23 @@ main ( int argc, char * argv[] )
 
     // Print Measurement Results
     std::cout   << "Results for cudaMemcpy:" << std::endl
-                << "Size: " << std::setw(10) << optMemorySize << "B";
+                << "Size: " << std::setw(10) << optMemorySize << "B\n";
                 //<< "***     Time to Copy (H2D): " << 1e6 * memCpyH2DTimer.getTime() << " µs" << std::endl
     std::cout.precision(2);
-    std::cout   << ", H2D: " << std::fixed << std::setw(6)
-                << 1e-9 * memCpyH2DTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s"
+    std::cout   << "H2D: " << std::fixed << std::setw(6)
+                << 1e-9 * memCpyH2DTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s\n"
+                //<< "***     Time to Copy (H2Dpinned): " << 1e6 * memCpyH2DTimer.getTime() << " µs" << std::endl
+                << "H2Dpinned: " << std::fixed << std::setw(6)
+                << 1e-9 * memCpyH2DpinTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s\n"
                 //<< "***     Time to Copy (D2H): " << 1e6 * memCpyD2HTimer.getTime() << " µs" << std::endl
-                << ", D2H: " << std::fixed << std::setw(6) 
-                << 1e-9 * memCpyD2HTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s" 
+                << "D2H: " << std::fixed << std::setw(6) 
+                << 1e-9 * memCpyD2HTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s\n" 
+                //<< "***     Time to Copy (D2Hpinned): " << 1e6 * memCpyD2HTimer.getTime() << " µs" << std::endl
+                << "D2Hpinned: " << std::fixed << std::setw(6) 
+                << 1e-9 * memCpyD2HpinTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s\n" 
                 //<< "***     Time to Copy (D2D): " << 1e6 * memCpyD2DTimer.getTime() << " µs" << std::endl
-                << ", D2D: " << std::fixed << std::setw(6)
-                << 1e-9 * memCpyD2DTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s" 
+                << "D2D: " << std::fixed << std::setw(6)
+                << 1e-9 * memCpyD2DTimer.getBandwidth ( optMemorySize, optMemCpyIterations ) << " GB/s\n" 
                 //<< "***     Kernel (Start-Up) Time: " 
                 //<< 1e6 * kernelTimer.getTime(optNumIterations) 
                 //<< " µs" << std::endl

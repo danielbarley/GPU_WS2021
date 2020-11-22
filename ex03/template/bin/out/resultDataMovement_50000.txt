@@ -1,0 +1,14 @@
+***
+*** Starting ...
+***
+*** Allocating memory of following size=50000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:      50000B
+H2D:   2.05 GB/s
+H2Dpinned:   2.93 GB/s
+D2H:   1.50 GB/s
+D2Hpinned:   4.12 GB/s
+D2D:   4.45 GB/s
+
