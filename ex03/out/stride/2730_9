@@ -1,0 +1,16 @@
+***
+*** Starting ...
+***
+*** Ignoring size parameter; using kernel launch parameters and stride, size=73728
+*** Allocating memory of following size=73728
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:      73728B
+H2D:   1.44 GB/s
+H2Dpinned:   3.43 GB/s
+D2H:   1.00 GB/s
+D2Hpinned:   4.19 GB/s
+D2D:   4.61 GB/s
+
+Strided(  9) copy of global memory, size=     73728, gDim=   16, bDim=  128, bw=  1.36GB/s

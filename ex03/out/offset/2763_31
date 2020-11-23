@@ -1,0 +1,16 @@
+***
+*** Starting ...
+***
+*** Ignoring size parameter; using kernel launch parameters and offset, size=636
+*** Allocating memory of following size=636
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:        636B
+H2D:   0.03 GB/s
+H2Dpinned:   0.04 GB/s
+D2H:   0.03 GB/s
+D2Hpinned:   0.05 GB/s
+D2D:   0.04 GB/s
+
+Offset( 31) copy of global memory, size=       636, gDim=    8, bDim=   64, bw=  0.37GB/s
