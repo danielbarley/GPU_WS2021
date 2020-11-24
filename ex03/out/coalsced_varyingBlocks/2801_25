@@ -1,0 +1,195 @@
+***
+*** Starting ...
+***
+*** Allocating memory of following size=1024
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:       1024B
+H2D:   0.04 GB/s
+H2Dpinned:   0.06 GB/s
+D2H:   0.05 GB/s
+D2Hpinned:   0.09 GB/s
+D2D:   0.06 GB/s
+
+Coalesced copy of global memory, size=      1024, gDim=   25, bDim=    8, bw=  0.18GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=5120
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:       5120B
+H2D:   0.22 GB/s
+H2Dpinned:   0.30 GB/s
+D2H:   0.28 GB/s
+D2Hpinned:   0.42 GB/s
+D2D:   0.31 GB/s
+
+Coalesced copy of global memory, size=      5120, gDim=   25, bDim=    8, bw=  0.89GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=10240
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:      10240B
+H2D:   0.40 GB/s
+H2Dpinned:   0.54 GB/s
+D2H:   0.30 GB/s
+D2Hpinned:   0.83 GB/s
+D2D:   0.47 GB/s
+
+Coalesced copy of global memory, size=     10240, gDim=   25, bDim=    8, bw=  1.83GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=51200
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:      51200B
+H2D:   1.26 GB/s
+H2Dpinned:   2.23 GB/s
+D2H:   0.97 GB/s
+D2Hpinned:   3.13 GB/s
+D2D:   2.71 GB/s
+
+Coalesced copy of global memory, size=     51200, gDim=   25, bDim=    8, bw=  8.81GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=102400
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:     102400B
+H2D:   1.74 GB/s
+H2Dpinned:   4.08 GB/s
+D2H:   1.04 GB/s
+D2Hpinned:   5.17 GB/s
+D2D:   6.33 GB/s
+
+Coalesced copy of global memory, size=    102400, gDim=   25, bDim=    8, bw= 18.20GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=512000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:     512000B
+H2D:   3.28 GB/s
+H2Dpinned:   5.69 GB/s
+D2H:   1.20 GB/s
+D2Hpinned:   9.91 GB/s
+D2D:  26.32 GB/s
+
+Coalesced copy of global memory, size=    512000, gDim=   25, bDim=    8, bw= 89.73GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=1024000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:    1024000B
+H2D:   3.47 GB/s
+H2Dpinned:   5.90 GB/s
+D2H:   1.23 GB/s
+D2Hpinned:  11.18 GB/s
+D2D:  65.26 GB/s
+
+Coalesced copy of global memory, size=   1024000, gDim=   25, bDim=    8, bw=174.10GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=5120000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:    5120000B
+H2D:   7.13 GB/s
+H2Dpinned:  10.53 GB/s
+D2H:   2.55 GB/s
+D2Hpinned:  12.84 GB/s
+D2D: 415.92 GB/s
+
+Coalesced copy of global memory, size=   5120000, gDim=   25, bDim=    8, bw=1370.28GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=10240000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:   10240000B
+H2D:   7.27 GB/s
+H2Dpinned:  10.93 GB/s
+D2H:   1.73 GB/s
+D2Hpinned:  12.93 GB/s
+D2D: 844.19 GB/s
+
+Coalesced copy of global memory, size=  10240000, gDim=   25, bDim=    8, bw=2675.25GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=51200000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:   51200000B
+H2D:  11.48 GB/s
+H2Dpinned:  12.35 GB/s
+D2H:   4.87 GB/s
+D2Hpinned:  13.13 GB/s
+D2D: 2633.74 GB/s
+
+Coalesced copy of global memory, size=  51200000, gDim=   25, bDim=    8, bw=15235.96GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=102400000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:  102400000B
+H2D:   6.55 GB/s
+H2Dpinned:  11.87 GB/s
+D2H:   1.87 GB/s
+D2Hpinned:   3.48 GB/s
+D2D: 9150.21 GB/s
+
+Coalesced copy of global memory, size= 102400000, gDim=   25, bDim=    8, bw=33689.24GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=512000000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size:  512000000B
+H2D:   6.31 GB/s
+H2Dpinned:   6.34 GB/s
+D2H:   1.89 GB/s
+D2Hpinned:   1.75 GB/s
+D2D: 40960.00 GB/s
+
+Coalesced copy of global memory, size= 512000000, gDim=   25, bDim=    8, bw=169166.95GB/s
+***
+*** Starting ...
+***
+*** Allocating memory of following size=1024000000
+*** Using pageable memory
+*** Using pinned memory
+Results for cudaMemcpy:
+Size: 1024000000B
+H2D:   5.69 GB/s
+H2Dpinned:   6.38 GB/s
+D2H:   1.96 GB/s
+D2Hpinned:   1.77 GB/s
+D2D: 74963.40 GB/s
+
+Coalesced copy of global memory, size=1024000000, gDim=   25, bDim=    8, bw=332505.75GB/s
