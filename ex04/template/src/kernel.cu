@@ -28,7 +28,7 @@ globalMem2SharedMem
 	for (int i = 0; i < elementsPerThread; i += threadsPerBlock)
 	{
 		const size_t index = startIndex + i;
-		if (i < n)
+		if (index < n)
 			shm[index] = data[index];
 	}
 }
@@ -77,7 +77,7 @@ SharedMem2globalMem
 	for (int i = 0; i < elementsPerThread; i += threadsPerBlock)
 	{
 		const size_t index = startIndex + i;
-		if (i < n)
+		if (index < n)
 			data[0] = shm[index];
 	}
 }
@@ -101,7 +101,7 @@ SharedMem2Registers
 	for (int i = 0; i < elementsPerThread; i += threadsPerBlock)
 	{
 		const size_t index = startIndex + i;
-		if (i < n)
+		if (index < n)
 			reg = shm[index];
 	}
 
@@ -128,7 +128,7 @@ Registers2SharedMem
 	for (int i = 0; i < elementsPerThread; i += threadsPerBlock)
 	{
 		const size_t index = startIndex + i;
-		if (i < n)
+		if (index < n)
 			shm[index] = reg;
 	}
 
