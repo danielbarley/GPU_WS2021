@@ -20,7 +20,7 @@
 #include <cuda_runtime.h>
 
 const static int DEFAULT_MEM_SIZE       = 10*1024*1024; // 10 MB
-const static int DEFAULT_NUM_ITERATIONS =         1000;
+const static int DEFAULT_NUM_ITERATIONS =       100000;
 const static int DEFAULT_BLOCK_DIM      =          128;
 const static int DEFAULT_GRID_DIM       =           16;
 
@@ -32,10 +32,11 @@ void printHelp(char *);
 //
 // Kernel Wrappers
 //
-extern void globalMem2SharedMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
-extern void SharedMem2globalMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
-extern void SharedMem2Registers_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
-extern void Registers2SharedMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
+extern void globalMem2SharedMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
+extern void globalMem2SharedMem_Wrapper_v2(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
+extern void SharedMem2globalMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
+extern void SharedMem2Registers_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
+extern void Registers2SharedMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
 extern void bankConflictsRead_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
 
 
@@ -136,31 +137,27 @@ main ( int argc, char * argv[] )
 	// Tests
 	//
 	kernelTimer.start();
-	//for ( int i = 0; i < optNumIterations; i++ )
+	for ( int i = 0; i < optNumIterations; i++ )
 	{
 		//
 		// Launch Kernel
 		//
-		std::cout << "Starting kernel: " << grid_dim.x << "x" << block_dim.x << " threads, " << optMemorySize << "B shared memory" << ", " << optNumIterations << " iterations" << std::endl;
+		//std::cout << "Starting kernel: " << grid_dim.x << "x" << block_dim.x << " threads, " << optMemorySize << "B shared memory" << ", " << optNumIterations << " iterations" << std::endl;
 		if ( chCommandLineGetBool ( "global2shared", argc, argv ) )
 		{
-			globalMem2SharedMem_Wrapper( grid_dim, block_dim, 0 /*Shared Memory Size*/
-					/*TODO Parameters*/);
+			globalMem2SharedMem_Wrapper_v2( grid_dim, block_dim, optMemorySize, d_memoryA);
 		}
 		else if ( chCommandLineGetBool ( "shared2global", argc, argv ) )
 		{
-			SharedMem2globalMem_Wrapper( grid_dim, block_dim, 0 /*Shared Memory Size*/
-					/*TODO Parameters*/);
+			SharedMem2globalMem_Wrapper( grid_dim, block_dim, optMemorySize, d_memoryA);
 		}
 		else if ( chCommandLineGetBool ( "shared2register", argc, argv ) )
 		{
-			SharedMem2Registers_Wrapper( grid_dim, block_dim, 0 /*Shared Memory Size*/
-					/*TODO Parameters*/);
+			SharedMem2Registers_Wrapper( grid_dim, block_dim, optMemorySize, d_memoryA);
 		}
 		else if ( chCommandLineGetBool ( "register2shared", argc, argv ) )
 		{
-			Registers2SharedMem_Wrapper( grid_dim, block_dim, 0 /*Shared Memory Size*/
-					/*TODO Parameters*/);
+			Registers2SharedMem_Wrapper( grid_dim, block_dim, optMemorySize, d_memoryA);
 		}
 		else if ( chCommandLineGetBool ( "shared2register_conflict", argc, argv ) )
 		{
