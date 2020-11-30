@@ -37,7 +37,7 @@ extern void globalMem2SharedMem_Wrapper_v2(dim3 gridSize, dim3 blockSize, int sh
 extern void SharedMem2globalMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
 extern void SharedMem2Registers_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
 extern void Registers2SharedMem_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data);
-extern void bankConflictsRead_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize /* TODO Parameters*/);
+extern void bankConflictsRead_Wrapper(dim3 gridSize, dim3 blockSize, int shmSize, float* data, size_t stride, long* d_clock);
 
 
 //
@@ -145,6 +145,10 @@ main ( int argc, char * argv[] )
 		//std::cout << "Starting kernel: " << grid_dim.x << "x" << block_dim.x << " threads, " << optMemorySize << "B shared memory" << ", " << optNumIterations << " iterations" << std::endl;
 		if ( chCommandLineGetBool ( "global2shared", argc, argv ) )
 		{
+			globalMem2SharedMem_Wrapper( grid_dim, block_dim, optMemorySize, d_memoryA);
+		}
+		else if ( chCommandLineGetBool ( "global2shared_v2", argc, argv ) )
+		{
 			globalMem2SharedMem_Wrapper_v2( grid_dim, block_dim, optMemorySize, d_memoryA);
 		}
 		else if ( chCommandLineGetBool ( "shared2global", argc, argv ) )
@@ -161,8 +165,7 @@ main ( int argc, char * argv[] )
 		}
 		else if ( chCommandLineGetBool ( "shared2register_conflict", argc, argv ) )
 		{
-			bankConflictsRead_Wrapper( grid_dim, block_dim, 0 /*Shared Memory Size*/
-					/*TODO Parameters*/);
+			bankConflictsRead_Wrapper( grid_dim, block_dim, optMemorySize, d_memoryA, optStride, dClocks);
 		}
 	}
 
