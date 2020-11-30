@@ -79,7 +79,78 @@ Nvidia was one major driver in the development of GPUs and corresponding archite
 
 \subsection{Shared Memory Analysis - Basis}
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2a}
+	\caption{Global to shared memory}
+	\label{fig:aufgabe42a}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2b}
+	\caption{Shared to global memory}
+	\label{fig:aufgabe42b}
+\end{figure}
+
+For the basic versions (figure \ref{fig:aufgabe42a} and \ref{fig:aufgabe42b}) we could not find any influence of the amount of threads. However, we decided to start with a thread amount of 32, since below we would not fully utilize the gpu.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2c}
+	\caption{Global to shared memory}
+	\label{fig:aufgabe42c}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2d}
+	\caption{Shared to global memory}
+	\label{fig:aufgabe42d}
+\end{figure}
+
+For the next task we should vary the number of blocks. In figure \ref{fig:aufgabe42c} and \ref{fig:aufgabe42d} one can see that the throughput scales linear with the amount of blocks. The reason for this is that every block has its own amount of shared memory and so the throughput gets added.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2e}
+	\caption{Global to shared memory}
+	\label{fig:aufgabe42e}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2f}
+	\caption{Shared to global memory}
+	\label{fig:aufgabe42f}
+\end{figure}
+
+Finally we should meassure a simple shared memory to register transfer. The results are shown in figure \ref{fig:aufgabe42e} and \ref{fig:aufgabe42f}. Again we cannot see a big difference. \\
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_2a_v2}
+	\caption{Global to shared memory with consecutively access pattern.}
+	\label{fig:aufgabe42av2}
+\end{figure}
+
+
+Here at this point we would like to add some remars according to the code. General spoken there are two main methods to access the data inside the kernel: (i) consecutively inside a thread, (ii) strided across the threads inside a block. The benefit of the second method is the better useage of the L1 cache. To verify this we repeated the first measurement with the first method. The results are shown in figure \ref{fig:aufgabe42av2}. According to the results we decided to use the second access pattern for the rest of the exercise. Maybe this is the reason why our meassurements show similar results. 
+
+
+
+
 \subsection{Shared Memory Analysis - Conflicts}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../../template/plots/aufgabe4_3}
+	\caption{Bank conflicts}
+	\label{fig:aufgabe43}
+\end{figure}
+
+In the next exercise we should try to meassure the impact of bank conflicts. However, as you can see in figure \ref{fig:aufgabe43}, we cannot find a impact of the strided access pattern. Maybe there is a error in our code. Normally you would expect that with a multiple of the bank size, you get alot of conflicts and therefore have a higher clock count.
+
 
 \subsection{Matrix Multiply - CPU Sequential Version}
 
