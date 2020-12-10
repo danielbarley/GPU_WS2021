@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \graphicspath{ {./images/} } % Uncomment
 \usepackage[
 top=2cm,
@@ -151,7 +152,37 @@ In the next exercise, we should try to measure the impact of bank conflicts. How
 
 
 \subsection{Matrix Multiply - CPU Sequential Version}
+The Code for this section can be found in the \texttt{matrix\_multiply} subfolder
+and compiled by calling \texttt{make} inside the folder.
+This results in the \texttt{mmul.out} binary which takes two parameters: \verb|-s <N>| which
+produces a $ N \times N $ matrix and \verb#-p <0 || 1># which dis/enables printing of the results.
+\subsubsection{Verification}
+When initialized as $ A[i, j] = i + j $ and $ B[i, j] = i \cdot j $ the multiplication yields:
+\begin{equation}
+\begin{bmatrix}
+0 & 30 & 60  & 90  & 120 & \\
+0 & 40 & 80  & 120 & 160 & \\
+0 & 50 & 100 & 150 & 200 & \\
+0 & 60 & 120 & 180 & 240 & \\
+0 & 70 & 140 & 210 & 280 &
+\end{bmatrix}
+\end{equation}
+\subsubsection{Performance}
+The measurements are taken on an AMD Ryzen 5 3600.
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/mmul_time.pdf}
+	\caption{Execution time for matrix multiply depending on problem size}%
+	\label{fig:../eval/mmul_time}
+\end{figure}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/mmul_through.pdf}
+	\caption{Throughput vs. problem size for matrix multiply. When growing beyond the L3 cache a dip in performance can be noticed. Another dip occures even earlier in between L2 and L3 this is probably due to the poor cache utilization of this implementation in general.}%
+	\label{fig:../eval/mmul_through}
+\end{figure}
 
+\newpage
 \subsection{Willingness to present}
 Hereby, we declare our will to present the results presented in the former sections.
 
