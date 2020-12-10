@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {./images/} } % Uncomment
+\usepackage[
+top=2cm,
+bottom=2cm,
+left=2cm,
+right=2cm,
+headheight=17pt, % as per the warning by fancyhdr
+includehead,includefoot,
+heightrounded, % to avoid spurious underfull messages
+]{geometry} 
+\geometry{a4paper}
+\usepackage{fancyhdr}
+
+% Lecture Name, exercise number, group number/members
+\newcommand{\lecture}{GPU Computing}
+\newcommand{\exercise}{Exercise 5}
+\newcommand{\groupnumber}{gpucomp03}
+\newcommand{\groupmembersshort}{Benjamin Maier, Daniel Barley, Laura Nell}
+\newcommand{\groupmemberslist}{Benjamin Maier\\Daniel Barley\\Laura Nell}
+\newcommand{\duedate}{December 15th, 09:00}
+
+
+
+\fancyhf{}
+\fancyhead[L]{\groupnumber}
+\fancyhead[R]{\textsc{\groupmembersshort}}
+\fancyfoot[C]{\lecture: \exercise}
+\fancyfoot[R] {\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\pagestyle{fancy}
+
+\begin{document}
+	\begin{titlepage}
+		\centering
+
+		{\scshape\LARGE Heidelberg University\\Institute for Computer Engineering (ZITI) \par}
+		\vspace{1.5cm}
+		{\scshape\Large Master of Science Computer Engineering \par}
+		\vspace{0.5cm}
+		{\scshape\Large \lecture \par}
+		\vspace{1.5cm}
+		{\huge\bfseries \exercise \par}
+		\vspace{2cm}
+		{\Large \groupnumber \itshape \\ \vspace{30pt} \groupmemberslist \par}
+		\vfill
+		
+		
+		% Bottom of the page
+		{\large Due date \duedate \par}
+	\end{titlepage}
+
+\setcounter{section}{5}
+
+\subsection{Reading}
+\subsubsection*{The GPU Coputing Era}
+Because of the still increasing demand for faster and higher-definition graphics, the development of increasingly parallel and programmable GPUs has not stopped yet. Using the example of Nvidia GPUs, the evolution of GPU computing and its parallel computing model as well as the benefit of CPU+GPU coprocessing are described with proof by example application performance speedups. In particular, the focus of the, at that time, state of the art architectures lies on the one hand on the CUDA scalable parallel architecture, on the other hand, regarding computing architectures, on the Fermi scalable computing architecture.\\\\
+The Fermi computing architecture enables a raise in throughput by several novel features like its streaming multiprocessors introducing a memory model using fast on-chip shared memory or ECC memory protection.\\
+The main conclusion is, that CPU+GPU coprocessing enables much more efficient execution of almost all kinds of algorithms by using the CPU, which is latency optimized, for serial parts of the code and the GPU, which is throughput optimized, for parallel parts of the code. This fits perfectly for the CUDA programming model, which is able to launch a series of parallel kernels from a single sequential control thread.\\\\
+The CUDA programming model is still widely used in today's applications due to its specialization on parallel computing. It is also still state of the art to extend CPU+GPU coprocessing for time consuming applications, although with further developed computing architectures. Therefore, we accept the paper and its content.
+
+\vspace{10pt}
+
+\subsection{Matrix Multiply - GPU naive version}
+
+\subsection{Matrix Multiply - GPU version using shared memory}
+
+\subsection{Willingness to present}
+Hereby, we declare our will to present the results presented in the former sections.
+
+
+\end{document}
