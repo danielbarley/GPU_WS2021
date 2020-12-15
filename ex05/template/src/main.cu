@@ -79,7 +79,7 @@ __global__ void shMatMul_Kernel(int matrixSize, float* matrixA, float* matrixB,
 
 			// compute temp sum
 			for (int i = 0; i < tilewidth; ++i) {
-				temp_sum += sh_MatrixA[threadIdx.y * tilewidth + k] * sh_MatrixB[k * tilewidth + threadIdx.x];
+				temp_sum += sh_MatrixA[threadIdx.y * tilewidth + i] * sh_MatrixB[i * tilewidth + threadIdx.x];
 			}
 			__syncthreads();
 		}
