@@ -13,6 +13,7 @@ heightrounded, % to avoid spurious underfull messages
 ]{geometry} 
 \geometry{a4paper}
 \usepackage{fancyhdr}
+\usepackage{booktabs}
 
 % Lecture Name, exercise number, group number/members
 \newcommand{\lecture}{GPU Computing}
@@ -64,10 +65,88 @@ The CUDA programming model is still widely used in today's applications due to i
 
 \vspace{10pt}
 
+\newpage
 \subsection{Matrix Multiply - GPU naive version}
 
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/thread_count.pdf}
+	\caption{The thread per block count was varied between 1 and 32.
+The best performance is unsurprisingly achieved when using the maximum of 32
+threads per block. This is in line with previous observations that less threads
+doing smaller tasks limits performance significantly.}
+	\label{fig:../eval/thread_count}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/problem_size.pdf}
+	\caption{Using the optimal count of 32 threads the problem size was varied
+and the latencies due to data movement and computation compared.
+For smaller problem sizes data movement is far too expensive.
+Only when reaching a few mega bytes the computation amortizes the movement of data}%
+	\label{fig:../eval/problem_size}
+\end{figure}
+
+\newpage
 \subsection{Matrix Multiply - GPU version using shared memory}
 
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/sh_thread_count.pdf}
+	\caption{The same as in the previous task was done for the shared memory
+	optimized version. Again the maximum number of threads is optimal.
+Additionally to the computation more threads mean a faster collaborative
+load into shared memory.}%
+	\label{fig:../eval/sh_thread_count}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/sh_problem_size.pdf}
+	\caption{Same as the naïve version}%
+	\label{fig:../eval/sh_problem_size}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/compare.pdf}
+	\caption{Comparing execution times of the naïve and optimized versions
+	reveals that for small problem sizes there is no notable difference.
+The naïve version even out performs the shared memory version probably due to
+the data movement and synchronization overhead introduced.}%
+	\label{fig:../eval/compare}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=1\linewidth]{../eval/diff.pdf}
+	\caption{Difference in execution time visualized. The shared memory
+	optimized matrix multiply starts to outperform the naïve version in
+the hundreds of mega bytes.}%
+	\label{fig:../eval/diff}
+\end{figure}
+
+
+\begin{table}[htpb]
+	\centering
+	\caption{
+		Speedups acheived for 1024x1024 (largest value tested on CPU)
+}
+	\label{tab:k}
+	\begin{tabular}{ll}
+		\toprule
+		Program Version & Speedup \\
+		\midrule
+		unoptimized excl. data movement & 301\\
+		unoptimized inc. data movement & 154\\
+		optimized excl. data movement & 361\\
+		optimized inc. data movement & 188\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\newpage
 \subsection{Willingness to present}
 Hereby, we declare our will to present the results presented in the former sections.
 
