@@ -151,6 +151,8 @@ main(int argc, char * argv[])
 
 	gridSize = ceil(static_cast<float>(numElements) / static_cast<float>(blockSize));
 
+	std::cout << "grid size: " << gridSize << std::endl;
+
 	dim3 grid_dim = dim3(gridSize);
 	dim3 block_dim = dim3(blockSize);
 
@@ -189,6 +191,8 @@ main(int argc, char * argv[])
 			cudaMemcpyDeviceToHost);
 
 	memCpyD2HTimer.stop();
+
+	std::cout << "reduction result: " << *h_dataOut << std::endl;
 
 	// Print Meassurement Results
 	std::cout << "***" << std::endl
