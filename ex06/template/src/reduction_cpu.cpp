@@ -44,4 +44,5 @@ int main(int argc, char** argv)
     }
 
     std::cout << "reduction took " << reductionTimer.getTime() * 1e3 << " ms" << std::endl;
+    std::cout << "reduction bandwidth: " << reductionTimer.getBandwidth(N * sizeof(float)) * 1e-9 << " GB / s" << std::endl;
 }
