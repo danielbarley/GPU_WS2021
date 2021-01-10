@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\graphicspath{ {./images/} } % Uncomment
+\graphicspath{ {./plot/} } % Uncomment
 \usepackage[
 top=2cm,
 bottom=2cm,
@@ -65,15 +65,17 @@ The Roofline model is still used today to check for a kernel's peak performance,
 \vspace{10pt}
 
 \subsection{Reduction - CPU sequential version}
+\includegraphics[width=0.7\textwidth]{cpu_sequtential.png}
+
 
 \subsection{Reduction - GPU parallel initial version}
+\includegraphics[width=0.9\textwidth]{gpu_initial.png}
 
 \subsection{Reduction - GPU parallel optimized version}
-
-\subsection{Reduction - Profiling}
+\includegraphics[width=0.9\textwidth]{gpu_optimized.png}
 
 \subsection{Willingness to present}
-Hereby, we declare our will to present the results presented in the former sections.
+Hereby, we declare our will to present the results shown in the former sections.
 
 
 \end{document}
