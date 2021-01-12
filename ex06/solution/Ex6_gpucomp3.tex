@@ -65,14 +65,34 @@ The Roofline model is still used today to check for a kernel's peak performance,
 \vspace{10pt}
 
 \subsection{Reduction - CPU sequential version}
-\includegraphics[width=0.7\textwidth]{cpu_sequtential.png}
+To start with the reduction exercise a sequential cpu version has been implemented. The bandwidth is shown in the figure \ref{fig:cpu}. As one can see the version does not scale with the problem size, which might occurs from bad caching effects.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{cpu_sequtential.png}
+	\label{fig:cpu}
+\end{figure}
 
 
 \subsection{Reduction - GPU parallel initial version}
-\includegraphics[width=0.9\textwidth]{gpu_initial.png}
+For the next exercise we implemented a simple reduction alogirthm on the gpu. The bandwith plot is shown in figure \ref{fig:gpu}. However, due to the parallelization, the throughput scales well with the problem size, where the best results can be achieved with a high amount of blocks per thread.
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{gpu_initial.png}
+	\label{fig:gpu}
+\end{figure}
 
 \subsection{Reduction - GPU parallel optimized version}
-\includegraphics[width=0.9\textwidth]{gpu_optimized.png}
+To optimize the gpu implementation we used a full loop unroll technique and doing the first reduction during the load. This should be the same idea as reduction version 6 from the lecture. The bandwith is shown in \ref{fig:gpu_opt}. However, the "optimized" version is not as good as the initial version. Sadly we were unable to discover the error. Maybe some more measurements would vanish some statistically side effects.
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{gpu_optimized.png}
+	\label{fig:gpu_opt}
+\end{figure}
 
 \subsection{Willingness to present}
 Hereby, we declare our will to present the results shown in the former sections.
