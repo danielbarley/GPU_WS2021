@@ -359,8 +359,6 @@ main(int argc, char * argv[])
 
 	kernelTimerNaive.stop();
 
-	std::cout << "after" << std::endl;
-
 	//
 	// Copy Back Data
 	//
