@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {./plot/} } % Uncomment
+\usepackage[
+top=2cm,
+bottom=2cm,
+left=2cm,
+right=2cm,
+headheight=17pt, % as per the warning by fancyhdr
+includehead,includefoot,
+heightrounded, % to avoid spurious underfull messages
+]{geometry} 
+\geometry{a4paper}
+\usepackage{fancyhdr}
+
+% Lecture Name, exercise number, group number/members
+\newcommand{\lecture}{GPU Computing}
+\newcommand{\exercise}{Exercise 7}
+\newcommand{\groupnumber}{gpucomp03}
+\newcommand{\groupmembersshort}{Benjamin Maier, Daniel Barley, Laura Nell}
+\newcommand{\groupmemberslist}{Benjamin Maier\\Daniel Barley\\Laura Nell}
+\newcommand{\duedate}{January 26th, 09:00}
+
+
+
+\fancyhf{}
+\fancyhead[L]{\groupnumber}
+\fancyhead[R]{\textsc{\groupmembersshort}}
+\fancyfoot[C]{\lecture: \exercise}
+\fancyfoot[R] {\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\pagestyle{fancy}
+
+\begin{document}
+	\begin{titlepage}
+		\centering
+
+		{\scshape\LARGE Heidelberg University\\Institute for Computer Engineering (ZITI) \par}
+		\vspace{1.5cm}
+		{\scshape\Large Master of Science Computer Engineering \par}
+		\vspace{0.5cm}
+		{\scshape\Large \lecture \par}
+		\vspace{1.5cm}
+		{\huge\bfseries \exercise \par}
+		\vspace{2cm}
+		{\Large \groupnumber \itshape \\ \vspace{30pt} \groupmemberslist \par}
+		\vfill
+		
+		
+		% Bottom of the page
+		{\large Due date \duedate \par}
+	\end{titlepage}
+
+\setcounter{section}{7}
+
+\subsection{Naive GPU implementation}
+
+\subsection{Optimized GPU implementation}
+
+\subsection{n-Body GPU computations and streaming}
+
+\subsection{Willingness to present}
+Hereby, we declare our will to present the results shown in the former sections.
+
+
+\end{document}
