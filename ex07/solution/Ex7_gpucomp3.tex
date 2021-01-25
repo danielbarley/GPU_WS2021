@@ -13,6 +13,7 @@ heightrounded, % to avoid spurious underfull messages
 ]{geometry} 
 \geometry{a4paper}
 \usepackage{fancyhdr}
+\usepackage{float}
 
 % Lecture Name, exercise number, group number/members
 \newcommand{\lecture}{GPU Computing}
@@ -56,29 +57,36 @@ heightrounded, % to avoid spurious underfull messages
 \setcounter{section}{7}
 
 \subsection{Naive GPU implementation}
-\begin{figure}[htpb]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_unopt.pdf}
+	\includegraphics[width=0.9\linewidth]{./plot/time_vs_elems_unopt.pdf}
 	\caption{Execution times for unoptimized n-body kernel}%
 	\label{fig:time_vs_elems_unopt}
 \end{figure}
 
 \subsection{Optimized GPU implementation}
-\begin{figure}[htpb]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_opt.pdf}
+	\includegraphics[width=0.9\linewidth]{./plot/time_vs_elems_opt.pdf}
 	\caption{Execution times for unoptimized n-body kernel}%
 	\label{fig:time_vs_elems_opt}
 \end{figure}
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_both.pdf}
+	\includegraphics[width=0.9\linewidth]{./plot/time_vs_elems_both.pdf}
 	\caption{Comparison of execution times for optimized and unoptimized versions}%
 	\label{fig:time_vs_elems_both}
 \end{figure}
 
 \subsection{n-Body GPU computations and streaming}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{./plot/streams.pdf}
+	\caption{Execution times for n-body kernel using one and two streams}%
+	\label{fig:streams}
+\end{figure}
 
 \subsection{Willingness to present}
 Hereby, we declare our will to present the results shown in the former sections.

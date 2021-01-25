@@ -9,7 +9,7 @@ plt.style.use('bmh')
 import numpy as np
 import pandas as pd
 
-thread_count = [
+times = [
 [2**9  , 90.235872 , 79.654782],
 [2**10 , 119.204424 , 106.707097],
 [2**11 , 234.636794 , 212.079334],
@@ -22,13 +22,13 @@ thread_count = [
 [2**18 , 295932.086 , 291133.747]
 ]
 
-df = pd.DataFrame(data=thread_count, columns=["elems", "time_unopt", "time_opt"])
+df = pd.DataFrame(data=times, columns=["elems", "time_unopt", "time_opt"])
 print(df)
 
 plt.figure()
 plt.plot(df["elems"], df["time_unopt"], linestyle='--', marker='^', label="Unoptimized")
 # plt.plot(df["elems"], df["time_opt"], linestyle='--', marker='x', label="Optimized")
-plt.xlabel("Number of Elements")
+plt.xlabel("Number of Bodies")
 plt.ylabel("Execution Time [ms]")
 plt.title("Execution Time for unoptimized n-Body Kernel")
 plt.yscale('log')
@@ -50,10 +50,33 @@ plt.savefig("../plot/time_vs_elems_opt.pdf")
 plt.figure()
 plt.plot(df["elems"], df["time_unopt"], linestyle='--', marker='^', label="Unoptimized")
 plt.plot(df["elems"], df["time_opt"], linestyle='--', marker='x', label="Optimized")
-plt.xlabel("Number of Elements")
+plt.xlabel("Number of Bodies")
 plt.ylabel("Execution Time [ms]")
 plt.title("Execution Time for unoptimized and optimized n-Body Kernel")
 plt.yscale('log')
 plt.xscale('log')
 plt.legend()
 plt.savefig("../plot/time_vs_elems_both.pdf")
+
+
+streams = [
+[128000, 81314.249  ,74065.1215, 69570.6182],
+[256000, 329717.492 ,295806.486, 269691.878],
+[384000, 759486.069 ,1111419.72, 598672.012],
+[512000, 1374677.3  ,1164831.69, 1044405.78]
+]
+
+df = pd.DataFrame(data=streams, columns=["elems", "time_single", "time_double", "time_opt"])
+df["diff"] = df["time_single"] - df["time_double"]
+
+plt.figure()
+plt.plot(df["elems"], df["time_single"], linestyle='--', marker='^', label="Single stream")
+plt.plot(df["elems"], df["time_double"], linestyle='--', marker='x', label="Two streams")
+plt.plot(df["elems"], df["time_opt"], linestyle='--', marker='o', label="Optimized")
+plt.xlabel("Number of Bodies")
+plt.ylabel("Execution Time [ms]")
+plt.title("Comparison single stream and multiple stream n-Body Kernel")
+plt.yscale('log')
+plt.xscale('log')
+plt.legend()
+plt.savefig("../plot/streams.pdf")
