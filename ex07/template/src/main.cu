@@ -49,8 +49,8 @@ struct Body_t {
 void printHelp(char *);
 void printElement(Body_t, int, int);
 
-bool isEqualFloat3(float3 a, float3 b, float epsilon = 1e-3);
-bool isEqualFloat4(float4 a, float4 b, float epsilon = 1e-3);
+bool isEqualFloat3(float3 a, float3 b, float epsilon = 1e-2);
+bool isEqualFloat4(float4 a, float4 b, float epsilon = 1e-2);
 
 //
 // Device Functions
@@ -127,6 +127,30 @@ simpleNbody_Kernel(int numElements, float4* bodyPos, float3* bodySpeed)
 }
 
 __global__ void
+streamNbody_Kernel(int numStoredElements, int numSwappedElements, float4* bodyPos, float3* bodySpeed)
+{
+	int elementId = blockIdx.x * blockDim.x + threadIdx.x;
+
+	float4 elementPosMass;
+	float3 elementForce;
+	float3 elementSpeed;
+	
+	if (elementId < numStoredElements) {
+		elementPosMass = bodyPos[elementId];
+		elementSpeed = bodySpeed[elementId];
+		elementForce = make_float3(0,0,0);
+
+		for (int i = numStoredElements; i < numStoredElements + numSwappedElements; i++) {
+			bodyBodyInteraction(elementPosMass, bodyPos[i], elementForce);
+		}
+
+		calculateSpeed(elementPosMass.w, elementSpeed, elementForce);
+
+		bodySpeed[elementId] = elementSpeed;
+	}
+}
+
+__global__ void
 sharedNbody_Kernel(int numElements, float4* bodyPos, float3* bodySpeed)
 {
 	extern __shared__ float4 shPosMass[];
@@ -138,8 +162,8 @@ sharedNbody_Kernel(int numElements, float4* bodyPos, float3* bodySpeed)
 		float3 elementSpeed = bodySpeed[elementId]; 
 		float3 elementForce = make_float3(0,0,0);
 
-		#pragma unroll 16
-		for (int j = 0; j + threadIdx.x < numElements; j += blockDim.x) {
+		//#pragma unroll 8
+		for (int j = 0; j < numElements; j += blockDim.x) {
 			shPosMass[threadIdx.x] = bodyPos[j + threadIdx.x];
 			__syncthreads();
 			// #pragma unroll 32
@@ -199,6 +223,7 @@ main(int argc, char * argv[])
 
 	ChTimer memCpyH2DTimer, memCpyD2HTimer;
 	ChTimer kernelTimerNaive, kernelTimerOptimized;
+	ChTimer kernelTimerLimited, kernelTimerLimitedStreams;
 
 	//
 	// Allocate Memory
@@ -211,7 +236,7 @@ main(int argc, char * argv[])
 	//
 	// Host Memory
 	//
-	bool pinnedMemory = chCommandLineGetBool("p", argc, argv);
+	bool pinnedMemory = true;
 	if (!pinnedMemory) {
 		pinnedMemory = chCommandLineGetBool("pinned-memory",argc,argv);
 	}
@@ -250,6 +275,13 @@ main(int argc, char * argv[])
 	h_particles_results_optimized.velocity = static_cast<float3*>
 				(malloc(static_cast<size_t>
 				(numElements * sizeof(*(h_particles.velocity)))));
+	Body_t h_particles_results_stream;
+	cudaMallocHost(&(h_particles_results_stream.posMass), 
+				static_cast<size_t>
+				(numElements * sizeof(*(h_particles.posMass))));
+	cudaMallocHost(&(h_particles_results_stream.velocity), 
+			static_cast<size_t>
+			(numElements * sizeof(*(h_particles.velocity))));
 
 
 	// Init Particles
@@ -420,15 +452,241 @@ main(int argc, char * argv[])
 			static_cast<size_t>(numElements * sizeof(*(h_particles_results_optimized.velocity))), 
 			cudaMemcpyDeviceToHost);
 
+	bool test = chCommandLineGetBool("test", argc, argv);
+
 	// check if both kernel give the same results
-	for (int i = 0; i < numElements; ++i)
+	if (test)
 	{
-		if (! isEqualFloat4(h_particles_results_naive.posMass[i], h_particles_results_optimized.posMass[i]))
+		for (int i = 0; i < numElements; ++i)
 		{
-			std::cout << "Wrong results for particle " << i << " in the posMass array!" << std::endl;
-			return -1;
+			if (! isEqualFloat4(h_particles_results_naive.posMass[i], h_particles_results_optimized.posMass[i]))
+			{
+				std::cout << "Wrong results for particle " << i << " in the posMass array!" << std::endl;
+				return -1;
+			}
 		}
 	}
+
+	cudaFree(d_particles.posMass);
+	cudaFree(d_particles.velocity);
+
+	//
+	// Exercise 3 tells to limit the device memory to 4 MB. Assuming each body consumes about 32B
+	// results to roughly 128k particles. 
+	// 
+
+	int deviceLimit = 128000;
+
+	int persistentData = deviceLimit / 2;
+	int swappedData = deviceLimit - persistentData;
+
+
+	Body_t d_particles_limited_default;
+
+	cudaMalloc(&(d_particles_limited_default.posMass), 
+		static_cast<size_t>(deviceLimit * sizeof(*(d_particles_limited_default.posMass))));
+	cudaMalloc(&(d_particles_limited_default.velocity), 
+		static_cast<size_t>(deviceLimit * sizeof(*(d_particles_limited_default.velocity))));
+
+	int persistentData_tmp = persistentData;
+	int swappedData_tmp = swappedData;
+
+	kernelTimerLimited.start();
+
+	for (int i = 0; i < numIterations; i ++) {
+		{
+			for (int j = 0; j < numElements; j += persistentData)
+			{
+				// copy the persistent particles
+				cudaMemcpy(d_particles_limited_default.posMass, h_particles.posMass + j, 
+						static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited_default.posMass))),
+						cudaMemcpyHostToDevice);
+				cudaMemcpy(d_particles_limited_default.velocity, h_particles.velocity + j, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited_default.velocity))),
+					cudaMemcpyHostToDevice);
+
+				for (int k = 0; k < numElements; k += swappedData)
+				{
+					// copy the swapped particles, only the position has to be stored
+					cudaMemcpy(d_particles_limited_default.posMass + persistentData_tmp, h_particles.posMass + k, 
+						static_cast<size_t>(swappedData_tmp * sizeof(*(d_particles_limited_default.posMass))),
+						cudaMemcpyHostToDevice);
+					streamNbody_Kernel<<<grid_dim, block_dim>>>(persistentData_tmp, swappedData_tmp, d_particles_limited_default.posMass, 
+						d_particles_limited_default.velocity);
+				}
+				updatePosition_Kernel<<<grid_dim, block_dim>>>(persistentData_tmp, d_particles_limited_default.posMass,
+					d_particles_limited_default.velocity);
+
+				// copy the updated persistent particles back
+				cudaMemcpy(h_particles_results_stream.posMass + j, d_particles_limited_default.posMass, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.posMass))),
+					cudaMemcpyDeviceToHost);
+				cudaMemcpy(h_particles_results_stream.velocity + j, d_particles_limited_default.velocity, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.velocity))),
+					cudaMemcpyDeviceToHost);
+			}
+		}
+	}
+
+	cudaDeviceSynchronize();
+
+	// Check for Errors
+	cudaError = cudaGetLastError();
+	if ( cudaError != cudaSuccess ) {
+		std::cout << "\033[31m***" << std::endl
+					<< "***ERROR*** " << cudaError << " - " << cudaGetErrorString(cudaError)
+					<< std::endl
+					<< "***\033[0m" << std::endl;
+
+		return -1;
+	}
+
+	kernelTimerLimited.stop();
+
+	std::cout << "after limited" << std::endl;
+
+	// check if both kernel give the same results
+	if (test)
+	{
+		for (int i = 0; i < numElements; ++i)
+		{
+			if (! isEqualFloat4(h_particles_results_naive.posMass[i], h_particles_results_stream.posMass[i]))
+			{
+				std::cout << "Wrong results for particle " << i << " in the posMass array!" << std::endl;
+				return -1;
+			}
+		}
+	}
+
+	const int streams = 2;
+
+	if (numElements % streams != 0)
+	{
+		std::cout << "numElements is not divisble by amount of streams" << std::endl;
+		return -1;
+	}
+
+	int elementsPerStream = numElements / streams;
+
+	int deviceLimitPerStream = deviceLimit / streams;
+
+	if (deviceLimitPerStream % 2 != 0)
+	{
+		std::cout << "device array is not divisble by amount of streams" << std::endl;
+		return -1;
+	}
+
+	persistentData = deviceLimitPerStream / 2;
+	swappedData = deviceLimitPerStream - persistentData;
+
+	// limit grid dim to not launch too many threads
+	gridSize = ceil(static_cast<float>(persistentData) / static_cast<float>(blockSize));
+	grid_dim = dim3(gridSize);
+
+	cudaStream_t cudaStreams [streams];
+	Body_t d_particles_limited [streams];
+
+	for (int i = 0; i < streams; ++i)
+	{
+		cudaStreamCreate(&(cudaStreams[i]));
+		cudaMalloc(&(d_particles_limited[i].posMass), 
+			static_cast<size_t>(deviceLimitPerStream * sizeof(*(d_particles_limited[i].posMass))));
+		cudaMalloc(&(d_particles_limited[i].velocity), 
+			static_cast<size_t>(deviceLimitPerStream * sizeof(*(d_particles_limited[i].velocity))));
+	}
+
+	persistentData_tmp = persistentData;
+	swappedData_tmp = swappedData;
+
+	kernelTimerLimitedStreams.start();
+
+	for (int i = 0; i < numIterations; i ++) {
+		{
+			for (int j = 0; j < elementsPerStream; j += persistentData)
+			{
+				// copy the persistent particles
+				cudaMemcpyAsync(d_particles_limited[0].posMass, h_particles.posMass + j, 
+						static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited[0].posMass))),
+						cudaMemcpyHostToDevice, cudaStreams[0]);
+				cudaMemcpyAsync(d_particles_limited[0].velocity, h_particles.velocity + j, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited[0].velocity))),
+					cudaMemcpyHostToDevice, cudaStreams[0]);
+
+				cudaMemcpyAsync(d_particles_limited[1].posMass, h_particles.posMass + elementsPerStream + j, 
+						static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited[1].posMass))),
+						cudaMemcpyHostToDevice, cudaStreams[1]);
+				cudaMemcpyAsync(d_particles_limited[1].velocity, h_particles.velocity + elementsPerStream + j, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(d_particles_limited[1].velocity))),
+					cudaMemcpyHostToDevice, cudaStreams[1]);
+				for (int k = 0; k < numElements; k += swappedData)
+				{
+					// copy the swapped particles, only the position has to be stored
+					cudaMemcpyAsync(d_particles_limited[0].posMass + persistentData_tmp, h_particles.posMass + k, 
+						static_cast<size_t>(swappedData_tmp * sizeof(*(d_particles_limited[0].posMass))),
+						cudaMemcpyHostToDevice, cudaStreams[0]);
+					streamNbody_Kernel<<<grid_dim, block_dim, 0, cudaStreams[0]>>>(persistentData_tmp, swappedData_tmp, d_particles_limited[0].posMass, 
+						d_particles_limited[0].velocity);
+
+					cudaMemcpyAsync(d_particles_limited[1].posMass + persistentData_tmp, h_particles.posMass + k, 
+						static_cast<size_t>(swappedData_tmp * sizeof(*(d_particles_limited[1].posMass))),
+						cudaMemcpyHostToDevice, cudaStreams[1]);
+					streamNbody_Kernel<<<grid_dim, block_dim, 0, cudaStreams[1]>>>(persistentData_tmp, swappedData_tmp, d_particles_limited[1].posMass, 
+						d_particles_limited[1].velocity);
+				}
+				updatePosition_Kernel<<<grid_dim, block_dim, 0, cudaStreams[0]>>>(persistentData_tmp, d_particles_limited[0].posMass,
+					d_particles_limited[0].velocity);
+
+				updatePosition_Kernel<<<grid_dim, block_dim, 0, cudaStreams[1]>>>(persistentData_tmp, d_particles_limited[1].posMass,
+					d_particles_limited[1].velocity);
+				// copy the updated persistent particles back
+				cudaMemcpyAsync(h_particles_results_stream.posMass + j, d_particles_limited[0].posMass, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.posMass))),
+					cudaMemcpyDeviceToHost, cudaStreams[0]);
+				cudaMemcpyAsync(h_particles_results_stream.velocity + j, d_particles_limited[0].velocity, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.velocity))),
+					cudaMemcpyDeviceToHost, cudaStreams[0]);
+
+				cudaMemcpyAsync(h_particles_results_stream.posMass + elementsPerStream + j, d_particles_limited[1].posMass, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.posMass))),
+					cudaMemcpyDeviceToHost, cudaStreams[1]);
+				cudaMemcpyAsync(h_particles_results_stream.velocity + elementsPerStream + j, d_particles_limited[1].velocity, 
+					static_cast<size_t>(persistentData_tmp * sizeof(*(h_particles_results_stream.velocity))),
+					cudaMemcpyDeviceToHost, cudaStreams[1]);
+			}
+		}
+	}
+
+	// Synchronize
+	cudaDeviceSynchronize();
+
+	// Check for Errors
+	cudaError = cudaGetLastError();
+	if ( cudaError != cudaSuccess ) {
+		std::cout << "\033[31m***" << std::endl
+					<< "***ERROR*** " << cudaError << " - " << cudaGetErrorString(cudaError)
+					<< std::endl
+					<< "***\033[0m" << std::endl;
+
+		return -1;
+	}
+
+	kernelTimerLimitedStreams.stop();
+
+	// exercise 3 finished
+
+	// check if both kernel give the same results
+	if (test)
+	{
+		for (int i = 0; i < numElements; ++i)
+		{
+			if (! isEqualFloat4(h_particles_results_naive.posMass[i], h_particles_results_stream.posMass[i]))
+			{
+				std::cout << "Wrong results for particle " << i << " in the posMass array!" << std::endl;
+				return -1;
+			}
+		}
+	}
+
 
 	// Free Memory
 	if (!pinnedMemory) {
@@ -466,6 +724,10 @@ main(int argc, char * argv[])
               << "***    Time for n-Body Computation naive implementation: " << 1e3 * kernelTimerNaive.getTime()
 				<< " ms" << std::endl
 			  << "***    Time for n-Body Computation optimized implementation: " << 1e3 * kernelTimerOptimized.getTime()
+				<< " ms" << std::endl
+			  << "***    Time for n-Body Computation streamed implementation on single stream: " << 1e3 * kernelTimerLimited.getTime()
+                << " ms" << std::endl
+			  << "***    Time for n-Body Computation streamed implementation on two streams: " << 1e3 * kernelTimerLimitedStreams.getTime()
                 << " ms" << std::endl
               << "***" << std::endl;
 
