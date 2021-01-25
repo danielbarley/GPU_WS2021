@@ -56,8 +56,27 @@ heightrounded, % to avoid spurious underfull messages
 \setcounter{section}{7}
 
 \subsection{Naive GPU implementation}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_unopt.pdf}
+	\caption{Execution times for unoptimized n-body kernel}%
+	\label{fig:time_vs_elems_unopt}
+\end{figure}
 
 \subsection{Optimized GPU implementation}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_opt.pdf}
+	\caption{Execution times for unoptimized n-body kernel}%
+	\label{fig:time_vs_elems_opt}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./plot/time_vs_elems_both.pdf}
+	\caption{Comparison of execution times for optimized and unoptimized versions}%
+	\label{fig:time_vs_elems_both}
+\end{figure}
 
 \subsection{n-Body GPU computations and streaming}
 
