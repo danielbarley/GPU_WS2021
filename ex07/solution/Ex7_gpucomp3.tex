@@ -63,6 +63,7 @@ heightrounded, % to avoid spurious underfull messages
 	\caption{Execution times for unoptimized n-body kernel}%
 	\label{fig:time_vs_elems_unopt}
 \end{figure}
+For the first exercise we implemented a naive kernel for a n-Body simulation. The measurements are shown in Figure \ref{fig:time_vs_elems_unopt}. We can definitely see the $\mathcal O(N^2)$ scaling behavior of the algorithm.
 
 \subsection{Optimized GPU implementation}
 \begin{figure}[H]
@@ -71,6 +72,7 @@ heightrounded, % to avoid spurious underfull messages
 	\caption{Execution times for unoptimized n-body kernel}%
 	\label{fig:time_vs_elems_opt}
 \end{figure}
+For the optimized implementation we decided to use structure of arrays for the better access pattern and tried to use tiling to optimize for shared memory use. We also were trying to use loop unrolling, but this always decreased our performance. The results are shown in Figure \ref{fig:time_vs_elems_opt} and \ref{fig:time_vs_elems_both}. We can only observe an increasing performance for smaller number of bodies. Maybe the additional writing in shared memory and synchronization steps are limiting the performance.
 
 \begin{figure}[H]
 	\centering
@@ -87,6 +89,8 @@ heightrounded, % to avoid spurious underfull messages
 	\caption{Execution times for n-body kernel using one and two streams}%
 	\label{fig:streams}
 \end{figure}
+
+For the last part we artificially limited the memory of the GPU to 4MB or to be more precise to hold a total amount of 128k bodies. To solve larger problems the host memory is acting as a swap space. To overlap the kernel execution with the memcpy operation we were using two streams, as more streams would split up the memory in even smaller parts. We were varying the segment size of our device memory between the persistent data and the swapped data but did not observe any big difference. The results are shown in Figure \ref{fig:streams}. As one can see the optimized version from exercise 7.2 is faster since there is no memory limit. However, even the single streamed version is faster than our two stream implementation, which is bit strange, but for a large amount of bodies the two stream version gets faster.
 
 \subsection{Willingness to present}
 Hereby, we declare our will to present the results shown in the former sections.
